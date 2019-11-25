@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Crabon API datasource</title>
+</head>
+<body>
+  <h1>Carbon API datasource</h1>
+  <pre id="data">
+  </pre>
+<script type="module">
+import {CarbonMetric, CarbonAPI} from './src/carbonapi.js';
+
+const m1 = new CarbonMetric('system.cokezero.loadavg_1min', '1min');
+const m2 = new CarbonMetric('system.cokezero.loadavg_5min', '5min');
+const m3 = new CarbonMetric('system.cokezero.loadavg_15min', '15min');
+
+const api = new CarbonAPI('http://localhost:8081', [m1, m2, m3]);
+
+api.startPeriodicUpdate(60*60, 10, d => {
+  const datael = document.getElementById('data');
+  datael.innerHTML = [m1, m2, m3].map(m => JSON.stringify(m.data)).join('\n');
+});
+</script>
+</body>
+</html>
