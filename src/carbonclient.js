@@ -49,13 +49,32 @@ class CarbonMetric {
     return carbonclient.formatTarget(this);
   }
 
-  update(data) {
-    console.log("TODO update", this, data);
-    this.data = data;
+  get length() {
+    return this.data.length;
+  }
+
+  get precision() {
+    if (this.data.length > 1) {
+      return this.data[1][1] - this.data[0][1];
+    }
+    return 0;
+  }
+
+  update(data, replace=false) {
+    if (this.data && !replace) {
+      const len = this.data.length;
+      const tmpdata = this.data.filter(d => d[0]);
+      const lastts = tmpdata[tmpdata.length-1][1];
+      const newdata = data.filter(d => d[1] > lastts && d[0]);
+      if (newdata.length) {
+        this.data = tmpdata.concat(newdata).slice(-len);
+      }
+    } else {
+      this.data = data;
+    }
   }
 
   parse(data) {
-    console.log("TODO parse", this, data);
     return data;
   }
 }
@@ -64,11 +83,12 @@ class CarbonAPI {
   constructor(apiRoot, metrics = []) {
     this.apiRoot = apiRoot;
     this.metrics = metrics || [];
-    this.period = 60; // 1 min
+    this.period = 0;
     this.timeframe = 60 * 60 * 24; // 1 day
     this.updateCallback = null;
 
     this._updating = null;
+    this._lastupdated = 0;
   }
 
   fetch(start, stop, config = {}) {
@@ -95,17 +115,26 @@ class CarbonAPI {
           const d = metric.parse ? metric.parse(metricData) : metricData;
           metric.update(d);
         } catch(e) {
-          console.warning("Error updating metric: " + metric, e);
+          console.warn("Error updating metric: " + metric, e);
         }
       }
     });
   }
 
-  async _update() {
+  async _update(full=false) {
     const now = +(new Date());
-    // TODO fetch delta + combine
-    const data = await this.fetch(now - this.timeframe * 1000, now);
-    this.process(data);
+    let delta = false;
+    if (this._lastupdated && !full) {
+      delta = true;
+    }
+    
+    const start = delta ?
+      this._lastupdated - 2 * this.period * 1000 : // start 2 * period earlier for safety
+      now - this.timeframe * 1000;
+
+    const stop = now;
+    const data = await this.fetch(start, stop);
+    this.process(data, !delta);
 
     if (this.updateCallback) {
       try {
@@ -115,10 +144,13 @@ class CarbonAPI {
       }
     }
 
-    this._updating = setTimeout(this._update.bind(this), this.period * 1000);
+    if (this.period) {
+      this._updating = setTimeout(this._update.bind(this), this.period * 1000);
+    }
+    this._lastupdated = now;
   }
 
-  startPeriodicUpdate(timeframe, period, callback) {
+  startPeriodicUpdate(timeframe, period=60, callback=null) {
     if (this._updating) {
       throw "Periodic update already running!";
     }
@@ -131,7 +163,9 @@ class CarbonAPI {
   stopPeriodicUpdate() {
     clearTimeout(this._updating);
     this.updateCallback = null;
+    this.period = null;
     this._updating = null;
+    this._lastupdated = null;
   }
 
 }

@@ -1,8 +1,9 @@
 {
   "name": "carbonclient",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "JS library to retrieve data from Graphite/CarbonAPI datasources",
-  "main": "carbonclient.js",
+  "main": "src/carbonclient.js",
+  "module": "src/carbonclient.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

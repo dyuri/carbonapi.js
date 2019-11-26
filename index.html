@@ -21,6 +21,8 @@ api.startPeriodicUpdate(60*60, 10, d => {
   const datael = document.getElementById('data');
   datael.innerHTML = [m1, m2, m3].map(m => JSON.stringify(m.data)).join('\n');
 });
+
+window.api = api;
 </script>
 </body>
 </html>
