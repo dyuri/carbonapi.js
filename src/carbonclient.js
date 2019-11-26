@@ -38,6 +38,28 @@ carbonclient.fetch = (apiRoot, target, start, stop, config = {}) => {
   }).then(r => r.json());
 };
 
+carbonclient.interpolate = (data, count=100) => {
+  const linearInterpolate = (before, after, atPoint) => before + (after - before) * atPoint;
+
+  const newData = [];
+  const step = (data.length - 1) / (count - 1);
+  
+  newData[0] = data[0];
+
+  for (let i = 1; i < count - 1; i++) {
+    var tmp = i * step;
+    var before = Math.floor(tmp);
+    var after = Math.ceil(tmp);
+    var atPoint = tmp - before;
+    newData[i] = [
+      linearInterpolate(data[before][0], data[after][0], atPoint),
+      linearInterpolate(data[before][1], data[after][1], atPoint)
+    ];
+  }
+  newData[count - 1] = data[data.length - 1];
+  return newData;
+};
+
 class CarbonMetric {
   constructor(name, alias, config = {}) {
     this.name = name;
@@ -58,6 +80,10 @@ class CarbonMetric {
       return this.data[1][1] - this.data[0][1];
     }
     return 0;
+  }
+
+  toLength(len) {
+    return carbonclient.interpolate(this.data, len);
   }
 
   update(data, replace=false) {
