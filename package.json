@@ -1,24 +1,24 @@
 {
-  "name": "carbonapi",
+  "name": "carbonclient",
   "version": "0.0.1",
   "description": "JS library to retrieve data from Graphite/CarbonAPI datasources",
-  "main": "carbonapi.js",
+  "main": "carbonclient.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/dyuri/carbonapi.js.git"
+    "url": "git+https://github.com/dyuri/carbonclient.js.git"
   },
   "keywords": [
     "graphite",
     "carbon",
-    "carbonapi"
+    "carbonclient"
   ],
   "author": "Gyuri Horák <dyuri@horak.hu>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/dyuri/carbonapi.js/issues"
+    "url": "https://github.com/dyuri/carbonclient.js/issues"
   },
-  "homepage": "https://github.com/dyuri/carbonapi.js#readme"
+  "homepage": "https://github.com/dyuri/carbonclient.js#readme"
 }

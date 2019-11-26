@@ -1,8 +1,8 @@
-const carbonapi = {};
+const carbonclient = {};
 
-carbonapi.formatDate = time => Math.floor(time / 1000);
+carbonclient.formatDate = time => Math.floor(time / 1000);
 
-carbonapi.formatTarget = t => {
+carbonclient.formatTarget = t => {
   if (typeof(t) === "string") {
     return encodeURIComponent(t);
   }
@@ -16,7 +16,7 @@ carbonapi.formatTarget = t => {
   return targetstr;
 };
 
-carbonapi.fetch = (apiRoot, target, start, stop, config = {}) => {
+carbonclient.fetch = (apiRoot, target, start, stop, config = {}) => {
   let query = ['format=json'];
 
   if (!Array.isArray(target)) {
@@ -24,8 +24,8 @@ carbonapi.fetch = (apiRoot, target, start, stop, config = {}) => {
   }
 
   target.forEach(t => query.push(`target=${t}`));
-  query.push(`from=${carbonapi.formatDate(start)}`);
-  query.push(`until=${carbonapi.formatDate(stop || +(new Date()))}`);
+  query.push(`from=${carbonclient.formatDate(start)}`);
+  query.push(`until=${carbonclient.formatDate(stop || +(new Date()))}`);
 
   return fetch(apiRoot + '/render', {
     method: 'POST',
@@ -46,7 +46,7 @@ class CarbonMetric {
   }
 
   toString() {
-    return carbonapi.formatTarget(this);
+    return carbonclient.formatTarget(this);
   }
 
   update(data) {
@@ -72,7 +72,7 @@ class CarbonAPI {
   }
 
   fetch(start, stop, config = {}) {
-    return carbonapi.fetch(this.apiRoot, this.metrics, start, stop, config);
+    return carbonclient.fetch(this.apiRoot, this.metrics, start, stop, config);
   }
 
   process(raw) {
@@ -137,14 +137,14 @@ class CarbonAPI {
 }
 
 // DEBUG
-carbonapi.CarbonMetric = CarbonMetric;
-carbonapi.CarbonAPI = CarbonAPI;
+carbonclient.CarbonMetric = CarbonMetric;
+carbonclient.CarbonAPI = CarbonAPI;
 try {
-  window.carbonapi = carbonapi;
+  window.carbonclient = carbonclient;
 } catch (e) {}
 
 export {
-  carbonapi,
+  carbonclient,
   CarbonMetric,
   CarbonAPI
 }
